@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Auditoria e Limpeza de Dados (Pipeline de Vendas)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #2980b9;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #34495e;
+        }
+
+        .executive-summary {
+            background-color: #fff;
+            padding: 25px;
+            border-left: 6px solid #3498db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .category {
+            background-color: #fff;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0e0e0;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .badge.info {
+            background-color: #f39c12;
+        }
+
+        .badge.success {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .solution {
+            background-color: #e8f8f5;
+            padding: 15px;
+            border-left: 4px solid #1abc9c;
+            margin-top: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .explanation {
+            font-style: italic;
+            color: #555;
+            background-color: #fdfefe;
+            padding: 15px;
+            border: 1px dashed #bdc3c7;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Auditoria e Limpeza de Dados do Pipeline de Vendas</h1>
+
+    <div class="executive-summary">
+        <h2>Resumo Executivo</h2>
+        <p>Este relatório apresenta os resultados do diagnóstico e limpeza que realizei na base de oportunidades de
+            vendas. Ao auditar as <strong>413 linhas originais</strong>, identifiquei problemas estruturais, erros de
+            digitação e divergências financeiras que poderiam comprometer análises e decisões de negócio. A base tratada
+            final possui <strong>305 linhas íntegras e 100% validadas</strong>.</p>
+
+        <h3>Problemas Encontrados por Categoria:</h3>
+        <ul>
+            <li><strong>Registros Fora do Escopo:</strong> 108 linhas removidas.</li>
+            <li><strong>Despadronização Textual (Categorias):</strong> Inúmeros erros de digitação em 3 colunas,
+                consolidados com sucesso.</li>
+            <li><strong>Erros de Formatação Financeira:</strong> 5 valores de texto quebrando a coluna numérica.</li>
+            <li><strong>Divergências Financeiras:</strong> 22 oportunidades com valores incompatíveis.</li>
+            <li><strong>Auditoria de Nulos (Alarme Falso):</strong> 21 campos em branco validados como legítimos pela
+                regra de negócio.</li>
+        </ul>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>1. Registros Fora do Escopo</h2>
+            <span class="badge">108 linhas afetadas</span>
+        </div>
+        <p><strong>Descrição:</strong> A base original continha oportunidades de tipos que não fazem parte do escopo de
+            análise desta equipe (como renovações).</p>
+        <table>
+            <tr>
+                <th>Exemplos reais encontrados</th>
+                <th>O que deveria ser (Escopo Correto): </th>
+            </tr>
+            <tr>
+                <td><code>Flex/Renewal</code>, <code>Retainer</code>, <code>Passthrough</code></td>
+                <td><code>Project - Competitive</code>, <code>Project - Not Competitive</code> ou
+                    <code>Change Order/Upsell</code>
+                </td>
+            </tr>
+        </table>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> O meu foco de análise é apenas "projetos novos" ou "vendas extras". A
+            planilha veio misturada com outros tipos de contratos (como mensalidades de clientes antigos).
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Removi essas 108 linhas da base, reduzindo a planilha de
+            413 para 305 oportunidades exclusivas para a minha análise.
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>2. Despadronização Textual (Erros de Digitação)</h2>
+            <span class="badge">Múltiplas colunas afetadas</span>
+        </div>
+        <p><strong>Descrição:</strong> Três colunas muito importantes para agrupar dados (`Stage`, `Lead_Office`, e
+            `Lead_Source`) sofriam de falta de padronização, com pessoas escrevendo a mesma coisa de jeitos diferentes
+            ou com erros ortográficos.</p>
+        <table>
+            <tr>
+                <th>Campo</th>
+                <th>Exemplos de Erros Encontrados</th>
+                <th>Como Ficou Após Correção</th>
+            </tr>
+            <tr>
+                <td><strong>Stage</strong> (Fase)</td>
+                <td><code>Clossed Won</code>, <code>Pitchinng</code>, <code>Qualifyed</code></td>
+                <td><code>Closed Won</code>, <code>Pitching</code>, <code>Qualified</code></td>
+            </tr>
+            <tr>
+                <td><strong>Lead_Office</strong> (Escritório)</td>
+                <td><code>São Paulo</code>, <code>SP</code>, <code>sao paulo</code></td>
+                <td><code>Sao Paulo, BR</code></td>
+            </tr>
+            <tr>
+                <td><strong>Lead_Source</strong> (Origem)</td>
+                <td><code>existing client - account/growth activity</code>,
+                    <code>REFERRAL - INTERNAL</code>
+                </td>
+                <td><code>Customer Success</code>, <code>Referral</code>, <code>Inbound</code>, <code>Outbound</code>,
+                    <code>Event</code>, <code>Unknown</code>
+                </td>
+            </tr>
+        </table>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> Imagina tentar contar quantos clientes vieram de "São Paulo" no Excel.
+            Se um vendedor escreve "SP" e outro escreve "São Paulo", o computador acha que são duas cidades diferentes.
+            O mesmo aconteceu com a fase da venda ("Clossed Won" com dois S) e a origem do cliente.
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Criei dicionários de tradução (regras "De: Para") que pegaram todas
+            essas grafias erradas e substituíram instantaneamente pelo nome oficial e padronizado.
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>3. Inconsistência de Formatação (Texto no lugar de Número)</h2>
+            <span class="badge">5 linhas afetadas diretamente (toda a coluna indiretamente)</span>
+        </div>
+        <p><strong>Descrição:</strong> A coluna do valor em dinheiro (<code>Amount</code>) possuía uma formatação mista.
+            Enquanto alguns valores vinham com vírgula decimal brasileira, outros vieram com o símbolo "R$" e pontuação
+            de milhares misturada.</p>
+        <table>
+            <tr>
+                <th>Exemplos Reais da Planilha</th>
+                <th>Problema Causado</th>
+            </tr>
+            <tr>
+                <td><code>R$ 265,000</code>, <code>32.400,00</code>, <code>R$ 838,800</code></td>
+                <td>O sistema entende isso como "texto" (letras) e não deixa fazer contas de matemática (soma, média).
+                </td>
+            </tr>
+        </table>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> Para fazer gráficos de vendas, preciso que o dinheiro seja lido pelo
+            computador como um número puro (ex: 265000.00). Letras como "R$" ou misturas de pontos e vírgulas travam a
+            calculadora do sistema.
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Criei uma rotina de limpeza automatizada que: 1) Arrancou o "R$" e
+            espaços; 2) Removeu os pontos de milhar; 3) Converteu as vírgulas para o formato decimal internacional. Em
+            seguida, a coluna inteira foi transformada em formato numérico.
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>4. Divergência Financeira Crítica</h2>
+            <span class="badge">22 oportunidades afetadas</span>
+        </div>
+        <p><strong>Descrição:</strong> No CRM, cada oportunidade pode ter vários produtos dentro dela. Encontrei
+            casos onde o <strong>Valor Total da Oportunidade</strong> não batia com a soma do valor dos <strong>Produtos
+                Individuais</strong> que estavam dentro dela.</p>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> É como ir ao mercado, comprar 3 itens de 10 reais cada, mas a nota
+            fiscal final cobrar 50 reais ao invés de 30. O total geral da oportunidade estava mentindo em relação aos
+            produtos que a compõem.
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Seguindo a regra de negócio que define que "a soma dos produtos é a fonte
+            da verdade", programei o sistema para recalcular o valor de cada uma dessas 22 oportunidades. O Valor
+            Total mentiroso foi apagado e substituído pela soma real matemática dos produtos atrelados a ela.
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>5. Investigação de Valores Vazios (Falso Positivo)</h2>
+            <span class="badge info">21 oportunidades analisadas</span>
+        </div>
+        <p><strong>Descrição:</strong> Durante a auditoria, o sistema apitou que 21 oportunidades não possuíam o valor
+            financeiro preenchido (campo <code>Amount</code> em branco).</p>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> Quando faltam dados importantes como dinheiro, o instinto é achar que é
+            um erro ou tentar imputar um valor médio. Porém, investiguei a fundo quem eram esses "clientes
+            sem preço". Descobri que todos eles estavam nas fases bem iniciais da negociação (<em>Opportunity
+                Identified</em> ou <em>Qualified</em>), ou seja, o cliente acabou de chegar na empresa e os vendedores
+            ainda nem fizeram um orçamento. Portanto, o campo vazio está certo!
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Absolutamente nada com os dados. Apenas
+            registrei no relatório que esses nulos são informações legítimas e comprovam que o fluxo de trabalho dos
+            vendedores nos estágios iniciais está correto.
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-header">
+            <h2>6. Oportunidades Vencidas (Alerta Operacional)</h2>
+            <span class="badge info">4 oportunidades mapeadas</span>
+        </div>
+        <p><strong>Descrição:</strong> Durante os testes avançados de consistência de datas, verifiquei se existiam
+            "viagens no tempo" (oportunidades fechadas antes de serem criadas). Essa checagem passou com 100% de
+            sucesso. No entanto, identifiquei que 4 oportunidades estão "vencidas".</p>
+
+        <div class="explanation">
+            <strong>Explicação simples:</strong> São negociações que constam como "Abertas" (os vendedores ainda estão
+            trabalhando nelas), mas a data de previsão de fechamento que está no sistema já passou. Ou seja, o vendedor
+            esqueceu de atualizar o sistema para dizer se perdeu, se ganhou, ou se empurrou a data para frente.
+        </div>
+
+        <div class="solution">
+            <strong>O que foi feito:</strong> Não modifiquei nem apaguei os dados, pois não são erros sistêmicos, mas
+            sim falhas de processo humano. Mantive os registros na base final, mas deixei este alerta para que a
+            Liderança de Vendas possa cobrar seus vendedores sobre a atualização do CRM.
+        </div>
+    </div>
+
+</body>
+
+</html>
